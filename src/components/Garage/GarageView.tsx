@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCars, removeCarThunk, setPage } from '../../store/garageSlice';
+import { fetchCars, removeCarThunk, setPage, selectCar } from '../../store/garageSlice';
 import type { RootState, AppDispatch } from '../../store/store';
 import { CarTrack } from './CarTrack';
+import { CarControls } from './CarControls';
 
 export const GarageView: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,6 +21,7 @@ export const GarageView: React.FC = () => {
 
   return (
     <div>
+      <CarControls />
       <h2>Garage ({totalCount})</h2>
       <h3>Page #{currentPage}</h3>
 
@@ -31,6 +33,7 @@ export const GarageView: React.FC = () => {
             key={car.id} 
             car={car} 
             onDelete={(id) => dispatch(removeCarThunk(id))} 
+            onSelect={(selected) => dispatch(selectCar(selected))}
           />
         ))}
       </div>

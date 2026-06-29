@@ -1,7 +1,6 @@
 import type {
   Car,
   CarCreateParams,
-  GarageResponse,
   EngineStatus,
   EngineStartResponse,
   EngineDriveResponse,
@@ -15,14 +14,11 @@ const CARS_LIMIT = 7;
 const WINNERS_LIMIT = 10;
 
 export const api = {
-  // --- Garage Section ---
-  async getCars(page: number): Promise<GarageResponse> {
-    const res = await fetch(`${BASE_URL}/garage?_page=${page}&_limit=${CARS_LIMIT}`);
-    if (!res.ok) throw new Error('Failed to fetch garage');
-    return {
-      cars: await res.json(),
-      totalCount: Number(res.headers.get('X-Total-Count') || '0'),
-    };
+  async getCars(page: number, limit = CARS_LIMIT): Promise<{ items: Car[]; count: number }> {
+    const res = await fetch(`${BASE_URL}/garage?_page=${page}&_limit=${limit}`);
+    const items = await res.json();
+    const count = Number(res.headers.get('X-Total-Count') || '0');
+    return { items, count };
   },
 
   async getCar(id: number): Promise<Car> {
@@ -56,7 +52,6 @@ export const api = {
     return res.json();
   },
 
-  // --- Engine Section ---
   async toggleEngine(id: number, status: Exclude<EngineStatus, 'drive'>): Promise<EngineStartResponse> {
     const res = await fetch(`${BASE_URL}/engine?id=${id}&status=${status}`, { method: 'PATCH' });
     if (!res.ok) throw new Error('Failed to change engine status');
@@ -65,12 +60,11 @@ export const api = {
 
   async driveCar(id: number): Promise<EngineDriveResponse> {
     const res = await fetch(`${BASE_URL}/engine?id=${id}&status=drive`, { method: 'PATCH' });
-    if (res.status === 500) return { success: false }; // Двигатель внезапно сломался
+    if (res.status === 500) return { success: false };
     if (!res.ok) throw new Error('Drive mode request failed');
     return res.json();
   },
 
-  // --- Winners Section ---
   async getWinners({ page, limit = WINNERS_LIMIT, sort = 'id', order = 'ASC' }: WinnersParams): Promise<WinnersResponse> {
     const query = `_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`;
     const res = await fetch(`${BASE_URL}/winners?${query}`);
@@ -87,14 +81,12 @@ export const api = {
     return res.json();
   },
 
-  async createWinner(winner: Winner): Promise<Winner> {
-    const res = await fetch(`${BASE_URL}/winners`, {
+  async createWinner(body: { id: number; wins: number; time: number }): Promise<void> {
+    await fetch(`${BASE_URL}/winners`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(winner),
+      body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error('Failed to create winner');
-    return res.json();
   },
 
   async deleteWinner(id: number): Promise<void> {
@@ -102,13 +94,11 @@ export const api = {
     if (!res.ok) throw new Error('Failed to delete winner');
   },
 
-  async updateWinner(id: number, winner: Omit<Winner, 'id'>): Promise<Winner> {
-    const res = await fetch(`${BASE_URL}/winners/${id}`, {
+  async updateWinner(id: number, body: { wins: number; time: number }): Promise<void> {
+    await fetch(`${BASE_URL}/winners/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(winner),
+      body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error('Failed to update winner');
-    return res.json();
   },
 };
