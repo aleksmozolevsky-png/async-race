@@ -42,8 +42,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
           setIsBroken((currentBroken) => {
             if (currentDriving && !currentBroken) {
               const timeInSeconds = parseFloat((timeInMs / 1000).toFixed(2));
-              
-              dispatch(setRaceWinner({ name: car.name, time: timeInSeconds }));
+              dispatch(setRaceWinner({ id: car.id, name: car.name, time: timeInSeconds }));
               dispatch(saveWinnerThunk({ id: car.id, time: timeInSeconds }));
             }
             return currentBroken;
@@ -112,7 +111,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
               <circle cx="10" cy="16" r="4" fill="#000" />
               <circle cx="30" cy="16" r="4" fill="#000" />
             </svg>
-            {isBroken && <span style={{ fontSize: '11px', color: '#ff4d4f', fontWeight: 'bold', marginLeft: '4px', whiteSpace: 'nowrap' }}>💥 БУМ</span>}
+            {isBroken && <span style={{ fontSize: '11px', color: '#ff4d4f', fontWeight: 'bold', marginLeft: '4px', whiteSpace: 'nowrap' }}>БУМ</span>}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { api } from '../api/api';
 import type { Car, CarCreateParams } from '../types';
-
+import {fetchWinnersThunk} from './winnersSlice'
 export type RaceStatus = 'ready' | 'racing' | 'finished';
 
 interface GarageState {
@@ -68,13 +68,14 @@ export const generateCarsThunk = createAsyncThunk(
     const brands = ['Tesla', 'BMW', 'Audi', 'Mercedes', 'Opel', 'Lada', 'Toyota', 'Ford', 'Nissan', 'Kia'];
     const models = ['Model S', 'X5', 'A6', 'S-Class', 'Astra', 'Vesta', 'Camry', 'Focus', 'Leaf', 'Rio'];
     
-    const promises = Array.from({ length: 100 }).map(() => {
-      const name = `${brands[Math.floor(Math.random() * brands.length)]} ${models[Math.floor(Math.random() * models.length)]}`;
-      const color = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
-      return api.createCar({ name, color });
-    });
-
-    await Promise.all(promises);
+    for (let i = 0; i < 100; i += 10) {
+      const batch = Array.from({ length: 10 }).map(() => {
+        const name = `${brands[Math.floor(Math.random() * brands.length)]} ${models[Math.floor(Math.random() * models.length)]}`;
+        const color = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+        return api.createCar({ name, color }).catch(() => null);
+      });
+      await Promise.all(batch);
+    }
     const state = getState() as { garage: GarageState };
     dispatch(fetchCars(state.garage.currentPage));
   }
@@ -82,15 +83,54 @@ export const generateCarsThunk = createAsyncThunk(
 
 export const saveWinnerThunk = createAsyncThunk(
   'garage/saveWinner',
-  async ({ id, time }: { id: number; time: number }) => {
-    const existingWinner = await api.getWinner(id);
+  async ({ id, time }: { id: number; time: number }, { dispatch, getState }) => {
+    const state = getState() as { garage: GarageState };
+    const currentCars = state.garage.cars;
+    const thisCar = currentCars.find(c => c.id === id);
+    
+    if (state.garage.winnerName !== thisCar?.name) {
+      return;
+    }
+    const allWinners = await api.getAllWinnersRaw();
+    const existingWinner = allWinners.find((w) => w.id === id);
+
     if (existingWinner) {
       await api.updateWinner(id, {
         wins: existingWinner.wins + 1,
-        time: Math.min(existingWinner.time, time)
+        time: Number(Math.min(existingWinner.time, time).toFixed(2))
       });
     } else {
       await api.createWinner({ id, wins: 1, time });
+    }
+    dispatch(fetchWinnersThunk());
+  }
+);
+
+export const handleCarFinishThunk = createAsyncThunk(
+  'garage/handleCarFinish',
+  async ({ id, name, time }: { id: number; name: string; time: number }, { dispatch, getState }) => {
+    const state = getState() as { garage: GarageState };
+    if (!state.garage.winnerName && state.garage.raceStatus === 'racing') {
+      dispatch(setRaceWinner({ id, name, time }));
+      const allWinners = await api.getAllWinnersRaw(); 
+      const existingWinner = allWinners.find((w: { id: number }) => w.id === id);
+
+      if (existingWinner) {
+        const updatedWins = existingWinner.wins + 1;
+        const updatedTime = Number(Math.min(existingWinner.time, time).toFixed(2));
+
+        await api.updateWinner(id, { 
+          wins: updatedWins, 
+          time: updatedTime 
+        });
+      } else {
+        await api.createWinner({ 
+          id, 
+          wins: 1, 
+          time 
+        });
+      }
+      dispatch(fetchWinnersThunk());
     }
   }
 );
@@ -115,11 +155,10 @@ const garageSlice = createSlice({
       state.winnerName = null;
       state.winnerTime = null;
     },
-    setRaceWinner: (state, action: PayloadAction<{ name: string; time: number }>) => {
+    setRaceWinner(state, action: PayloadAction<{ id: number; name: string; time: number }>) {
       if (!state.winnerName && state.raceStatus === 'racing') {
         state.winnerName = action.payload.name;
         state.winnerTime = action.payload.time;
-        state.raceStatus = 'finished';
       }
     },
   },

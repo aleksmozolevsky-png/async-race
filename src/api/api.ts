@@ -74,6 +74,12 @@ export const api = {
       totalCount: Number(res.headers.get('X-Total-Count') || '0'),
     };
   },
+  
+  async getAllWinnersRaw(): Promise<Winner[]> {
+    const res = await fetch(`${BASE_URL}/winners`);
+    if (!res.ok) throw new Error('Failed to fetch all winners');
+    return res.json();
+  },
 
   async getWinner(id: number): Promise<Winner> {
     const res = await fetch(`${BASE_URL}/winners/${id}`);
