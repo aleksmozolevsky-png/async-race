@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { api } from '../api/api';
+import { fetchWinnersThunk } from './winnersSlice';
 import type { Car, CarCreateParams } from '../types';
-import {fetchWinnersThunk} from './winnersSlice'
+
 export type RaceStatus = 'ready' | 'racing' | 'finished';
 
 interface GarageState {
@@ -30,9 +31,7 @@ const initialState: GarageState = {
 
 export const fetchCars = createAsyncThunk<{ items: Car[]; count: number }, number>(
   'garage/fetchCars',
-  async (page: number) => {
-    return api.getCars(page);
-  }
+  async (page: number) => api.getCars(page)
 );
 
 export const removeCarThunk = createAsyncThunk(
@@ -65,13 +64,37 @@ export const updateCarThunk = createAsyncThunk(
 export const generateCarsThunk = createAsyncThunk(
   'garage/generateCars',
   async (_, { dispatch, getState }) => {
-    const brands = ['Tesla', 'BMW', 'Audi', 'Mercedes', 'Opel', 'Lada', 'Toyota', 'Ford', 'Nissan', 'Kia'];
-    const models = ['Model S', 'X5', 'A6', 'S-Class', 'Astra', 'Vesta', 'Camry', 'Focus', 'Leaf', 'Rio'];
-    
+    const brands = [
+      'Tesla',
+      'BMW',
+      'Audi',
+      'Mercedes',
+      'Opel',
+      'Lada',
+      'Toyota',
+      'Ford',
+      'Nissan',
+      'Kia',
+    ];
+    const models = [
+      'Model S',
+      'X5',
+      'A6',
+      'S-Class',
+      'Astra',
+      'Vesta',
+      'Camry',
+      'Focus',
+      'Leaf',
+      'Rio',
+    ];
+
     for (let i = 0; i < 100; i += 10) {
       const batch = Array.from({ length: 10 }).map(() => {
         const name = `${brands[Math.floor(Math.random() * brands.length)]} ${models[Math.floor(Math.random() * models.length)]}`;
-        const color = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+        const color = `#${Math.floor(Math.random() * 16777215)
+          .toString(16)
+          .padStart(6, '0')}`;
         return api.createCar({ name, color }).catch(() => null);
       });
       await Promise.all(batch);
@@ -86,8 +109,8 @@ export const saveWinnerThunk = createAsyncThunk(
   async ({ id, time }: { id: number; time: number }, { dispatch, getState }) => {
     const state = getState() as { garage: GarageState };
     const currentCars = state.garage.cars;
-    const thisCar = currentCars.find(c => c.id === id);
-    
+    const thisCar = currentCars.find((c) => c.id === id);
+
     if (state.garage.winnerName !== thisCar?.name) {
       return;
     }
@@ -97,41 +120,12 @@ export const saveWinnerThunk = createAsyncThunk(
     if (existingWinner) {
       await api.updateWinner(id, {
         wins: existingWinner.wins + 1,
-        time: Number(Math.min(existingWinner.time, time).toFixed(2))
+        time: Number(Math.min(existingWinner.time, time).toFixed(2)),
       });
     } else {
       await api.createWinner({ id, wins: 1, time });
     }
     dispatch(fetchWinnersThunk());
-  }
-);
-
-export const handleCarFinishThunk = createAsyncThunk(
-  'garage/handleCarFinish',
-  async ({ id, name, time }: { id: number; name: string; time: number }, { dispatch, getState }) => {
-    const state = getState() as { garage: GarageState };
-    if (!state.garage.winnerName && state.garage.raceStatus === 'racing') {
-      dispatch(setRaceWinner({ id, name, time }));
-      const allWinners = await api.getAllWinnersRaw(); 
-      const existingWinner = allWinners.find((w: { id: number }) => w.id === id);
-
-      if (existingWinner) {
-        const updatedWins = existingWinner.wins + 1;
-        const updatedTime = Number(Math.min(existingWinner.time, time).toFixed(2));
-
-        await api.updateWinner(id, { 
-          wins: updatedWins, 
-          time: updatedTime 
-        });
-      } else {
-        await api.createWinner({ 
-          id, 
-          wins: 1, 
-          time 
-        });
-      }
-      dispatch(fetchWinnersThunk());
-    }
   }
 );
 
@@ -182,4 +176,37 @@ const garageSlice = createSlice({
 });
 
 export const { setPage, selectCar, startRace, resetRace, setRaceWinner } = garageSlice.actions;
+
+export const handleCarFinishThunk = createAsyncThunk(
+  'garage/handleCarFinish',
+  async (
+    { id, name, time }: { id: number; name: string; time: number },
+    { dispatch, getState }
+  ) => {
+    const state = getState() as { garage: GarageState };
+    if (!state.garage.winnerName && state.garage.raceStatus === 'racing') {
+      dispatch(setRaceWinner({ id, name, time }));
+      const allWinners = await api.getAllWinnersRaw();
+      const existingWinner = allWinners.find((w: { id: number }) => w.id === id);
+
+      if (existingWinner) {
+        const updatedWins = existingWinner.wins + 1;
+        const updatedTime = Number(Math.min(existingWinner.time, time).toFixed(2));
+
+        await api.updateWinner(id, {
+          wins: updatedWins,
+          time: updatedTime,
+        });
+      } else {
+        await api.createWinner({
+          id,
+          wins: 1,
+          time,
+        });
+      }
+      dispatch(fetchWinnersThunk());
+    }
+  }
+);
+
 export default garageSlice.reducer;

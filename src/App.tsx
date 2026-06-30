@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GarageView } from './components/Garage/GarageView';
-import {WinnersView} from './components/Winners/WinnersView'; 
+import { WinnersView } from './components/Winners/WinnersView';
 
 type View = 'garage' | 'winners';
 
@@ -14,6 +14,7 @@ const App: React.FC = () => {
       {/* Toggle buttons */}
       <div style={{ marginBottom: '20px' }}>
         <button
+          type="button"
           onClick={() => setCurrentView('garage')}
           disabled={currentView === 'garage'}
           style={{
@@ -29,6 +30,7 @@ const App: React.FC = () => {
           Garage
         </button>
         <button
+          type="button"
           onClick={() => setCurrentView('winners')}
           disabled={currentView === 'winners'}
           style={{
@@ -45,9 +47,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Content of selected type */}
-      <main>
-        {currentView === 'garage' ? <GarageView /> : <WinnersView />}
-      </main>
+      <main>{currentView === 'garage' ? <GarageView /> : <WinnersView />}</main>
     </div>
   );
 };

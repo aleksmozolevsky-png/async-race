@@ -38,7 +38,9 @@ export const fetchWinnersThunk = createAsyncThunk(
 
     const extendedWinners = await Promise.all(
       data.winners.map(async (winner) => {
-        const car = await api.getCar(winner.id).catch(() => ({ id: winner.id, name: 'Unknown Car', color: '#000000' }));
+        const car = await api
+          .getCar(winner.id)
+          .catch(() => ({ id: winner.id, name: 'Unknown Car', color: '#000000' }));
         return { ...winner, car };
       })
     );
@@ -54,9 +56,9 @@ export const saveWinnerThunk = createAsyncThunk(
       const existingWinner = await api.getWinner(id);
       const updatedWins = existingWinner.wins + 1;
       const updatedTime = Number(Math.min(existingWinner.time, time).toFixed(2));
-      
+
       await api.updateWinner(id, { wins: updatedWins, time: updatedTime });
-    } catch (error) {
+    } catch {
       await api.createWinner({ id, wins: 1, time });
     }
     dispatch(fetchWinnersThunk());

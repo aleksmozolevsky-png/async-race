@@ -52,7 +52,10 @@ export const api = {
     return res.json();
   },
 
-  async toggleEngine(id: number, status: Exclude<EngineStatus, 'drive'>): Promise<EngineStartResponse> {
+  async toggleEngine(
+    id: number,
+    status: Exclude<EngineStatus, 'drive'>
+  ): Promise<EngineStartResponse> {
     const res = await fetch(`${BASE_URL}/engine?id=${id}&status=${status}`, { method: 'PATCH' });
     if (!res.ok) throw new Error('Failed to change engine status');
     return res.json();
@@ -65,7 +68,12 @@ export const api = {
     return res.json();
   },
 
-  async getWinners({ page, limit = WINNERS_LIMIT, sort = 'id', order = 'ASC' }: WinnersParams): Promise<WinnersResponse> {
+  async getWinners({
+    page,
+    limit = WINNERS_LIMIT,
+    sort = 'id',
+    order = 'ASC',
+  }: WinnersParams): Promise<WinnersResponse> {
     const query = `_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`;
     const res = await fetch(`${BASE_URL}/winners?${query}`);
     if (!res.ok) throw new Error('Failed to fetch winners');
@@ -74,7 +82,7 @@ export const api = {
       totalCount: Number(res.headers.get('X-Total-Count') || '0'),
     };
   },
-  
+
   async getAllWinnersRaw(): Promise<Winner[]> {
     const res = await fetch(`${BASE_URL}/winners`);
     if (!res.ok) throw new Error('Failed to fetch all winners');
