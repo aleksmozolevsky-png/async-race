@@ -18,6 +18,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
   const [isDriving, setIsDriving] = useState(false);
   const [isBroken, setIsBroken] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [leftPos, setLeftPos] = useState('10px');
   const carRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
       
       setDuration(timeInMs / 1000);
       setIsDriving(true);
+      setLeftPos('calc(100% - 130px)');
 
       const finishTimeout = setTimeout(() => {
         setIsDriving((currentDriving) => {
@@ -64,8 +66,11 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
   const handleBreakdown = () => {
     if (!carRef.current) return;
     const computedStyle = window.getComputedStyle(carRef.current);
+    const currentLeft = computedStyle.left;
+    
     setIsBroken(true);
-    carRef.current.style.left = computedStyle.left;
+    setLeftPos(currentLeft);
+    carRef.current.style.left = currentLeft; 
   };
 
   const handleReset = async () => {
@@ -73,47 +78,64 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
     setIsDriving(false);
     setIsBroken(false);
     setDuration(0);
-    if (carRef.current) carRef.current.style.left = '0%';
+    setLeftPos('10px');
   };
 
   return (
-    <div style={{ borderBottom: '2px dashed #e0e0e0', padding: '15px 0', minWidth: '460px' }}>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'center' }}>
-        <button type="button" onClick={() => onSelect(car)}>Select</button>
-        <button type="button" onClick={() => onDelete(car.id)}>Remove</button>
-        <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>{car.name}</span>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          <button type="button" disabled={isDriving || isBroken || raceStatus === 'racing'} onClick={handleStart} style={{ background: '#52c41a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>A</button>
-          <button type="button" disabled={(!isDriving && !isBroken) || raceStatus === 'racing'} onClick={handleReset} style={{ background: '#f5222d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>B</button>
+    <div style={{ display: 'flex', alignItems: 'center', height: '60px', borderBottom: '1px solid #333', background: '#232329' }}>
+      
+      {/* Left control panel */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '140px', minWidth: '140px', padding: '0 10px', height: '100%', background: '#1a1a1f', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <button type="button" onClick={() => onSelect(car)} style={{ fontSize: '10px', padding: '2px 4px', cursor: 'pointer' }}>SEL</button>
+          <button type="button" onClick={() => onDelete(car.id)} style={{ fontSize: '10px', padding: '2px 4px', cursor: 'pointer' }}>DEL</button>
         </div>
         
-        <div style={{ flexGrow: 1, height: '30px', background: '#f0f0f0', position: 'relative', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', right: '50px', top: 0, width: '10px', height: '10px', background: '#000', zIndex: 1 }} />
-          <div style={{ position: 'absolute', right: '55px', top: '10px', width: '2px', height: '20px', background: '#ccc', zIndex: 1 }} />
-          
-          <div 
-            ref={carRef}
-            style={{ 
-              position: 'absolute',
-              top: '5px',
-              left: isDriving && !isBroken ? 'calc(100% - 90px)' : '0%',
-              transition: isDriving && !isBroken ? `left ${duration}s linear` : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              zIndex: 2
-            }}
-          >
-            <svg width="40" height="20" viewBox="0 0 40 20" style={{ fill: isBroken ? '#ff4d4f' : car.color }}>
-              <rect width="40" height="12" y="4" rx="3" />
-              <circle cx="10" cy="16" r="4" fill="#000" />
-              <circle cx="30" cy="16" r="4" fill="#000" />
-            </svg>
-            {isBroken && <span style={{ fontSize: '11px', color: '#ff4d4f', fontWeight: 'bold', marginLeft: '4px', whiteSpace: 'nowrap' }}>БУМ</span>}
-          </div>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button type="button" disabled={isDriving || isBroken || raceStatus === 'racing'} onClick={handleStart} style={{ background: '#52c41a', color: '#fff', border: 'none', borderRadius: '3px', width: '26px', height: '34px', cursor: 'pointer', fontWeight: 'bold' }}>A</button>
+          <button type="button" disabled={(!isDriving && !isBroken) || raceStatus === 'racing'} onClick={handleReset} style={{ background: '#f5222d', color: '#fff', border: 'none', borderRadius: '3px', width: '26px', height: '34px', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
         </div>
+      </div>
+
+      {/* Track */}
+      <div style={{ flexGrow: 1, height: '100%', position: 'relative', display: 'flex', alignItems: 'center' }}>
+        
+        {/* Start lane */}
+        <div style={{ position: 'absolute', left: '52px', top: 0, bottom: 0, width: '4px', background: '#ff4d4f', zIndex: 1 }} />
+
+        {/* Car name */}
+        <span style={{ position: 'absolute', left: '70px', fontSize: '20px', fontWeight: 800, color: 'rgba(255, 255, 255, 0.66)', textTransform: 'uppercase', letterSpacing: '2px', whiteSpace: 'nowrap', userSelect: 'none', pointerEvents: 'none' }}>
+          {car.name}
+        </span>
+
+        {/* Finish lane */}
+        <div style={{ position: 'absolute', right: '80px', top: 0, bottom: 0, width: '6px', background: '#52c41a' }} />
+        
+        {/* Car */}
+        <div 
+          ref={carRef}
+          style={{ 
+            position: 'absolute',
+            left: leftPos,
+            transition: isDriving && !isBroken ? `left ${duration}s linear` : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            zIndex: 2
+          }}
+        >
+          <svg width="42" height="20" viewBox="0 0 40 20" style={{ fill: isBroken ? '#ff4d4f' : car.color }}>
+            <rect width="40" height="12" y="4" rx="3" />
+            <circle cx="10" cy="16" r="4" fill="#000" />
+            <circle cx="30" cy="16" r="4" fill="#000" />
+          </svg>
+          
+          {isBroken && (
+            <span style={{ fontSize: '10px', color: '#fff', background: '#ff4d4f', padding: '2px 5px', borderRadius: '3px', marginLeft: '6px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+              Boom
+            </span>
+          )}
+        </div>
+
       </div>
     </div>
   );

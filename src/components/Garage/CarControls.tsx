@@ -5,7 +5,7 @@ import { createCarThunk, updateCarThunk, generateCarsThunk, selectCar, startRace
 
 export const CarControls: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedCar, raceStatus, winnerName, winnerTime } = useSelector((state: RootState) => state.garage);
+  const { selectedCar, raceStatus } = useSelector((state: RootState) => state.garage);
 
   const [createName, setCreateName] = useState('');
   const [createColor, setCreateColor] = useState('#ffffff');
@@ -53,16 +53,6 @@ export const CarControls: React.FC = () => {
         <button type="button" disabled={raceStatus === 'racing' || raceStatus === 'finished'} onClick={() => dispatch(startRace())} style={{ background: '#1890ff', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>RACE</button>
         <button type="button" disabled={raceStatus === 'ready'} onClick={() => dispatch(resetRace())} style={{ background: '#d9d9d9', color: '#333', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>RESET</button>
       </div>
-
-      {winnerName && (
-        <div style={{ position: 'fixed', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', background: '#52c41a', color: '#fff', padding: '20px 40px', borderRadius: '8px', fontSize: '24px', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 1000 }}>
-          Winner: 
-          <br />
-          {winnerName}
-          <br />
-          Time: {winnerTime} S
-        </div>
-      )}
     </div>
   );
 };

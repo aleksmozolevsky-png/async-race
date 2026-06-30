@@ -159,6 +159,7 @@ const garageSlice = createSlice({
       if (!state.winnerName && state.raceStatus === 'racing') {
         state.winnerName = action.payload.name;
         state.winnerTime = action.payload.time;
+        state.raceStatus = 'finished';
       }
     },
   },
