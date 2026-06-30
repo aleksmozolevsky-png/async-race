@@ -39,11 +39,11 @@ export const GarageView: React.FC = () => {
           marginBottom: '15px',
         }}
       >
-        <h2 style={{ margin: 0, color: '#111' }}>Garage ({totalCount})</h2>
-        <h3 style={{ margin: 0, color: '#666' }}>Page #{currentPage}</h3>
+        <h2 style={{ margin: 0, color: 'var(--text-h)' }}>Garage ({totalCount})</h2>
+        <h3 style={{ margin: 0, color: 'var(--text)' }}>Page #{currentPage}</h3>
       </div>
 
-      {loading && <p>Loading cars...</p>}
+      {loading && <p style={{ color: 'var(--text)' }}>Loading cars...</p>}
 
       {/* Rrelative container for storing the track and the popup */}
       <div style={{ position: 'relative', width: '100%' }}>
@@ -52,9 +52,9 @@ export const GarageView: React.FC = () => {
           style={{
             width: '100%',
             overflowX: 'auto',
-            border: '1px solid #444',
+            border: '1px solid var(--border)',
             borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            boxShadow: 'var(--shadow)',
           }}
         >
           <div
@@ -62,7 +62,7 @@ export const GarageView: React.FC = () => {
               minWidth: '1000px',
               display: 'flex',
               flexDirection: 'column',
-              background: '#232329',
+              background: 'var(--track-bg)',
             }}
           >
             {cars.length === 0 && !loading ? (
@@ -70,7 +70,7 @@ export const GarageView: React.FC = () => {
                 style={{
                   padding: '50px 20px',
                   textAlign: 'center',
-                  color: '#aaa',
+                  color: 'var(--text)',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   letterSpacing: '1px',
@@ -99,27 +99,27 @@ export const GarageView: React.FC = () => {
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              background: 'rgba(35, 35, 41, 0.85)',
+              background: 'var(--popup-bg)',
               backdropFilter: 'blur(5px)',
               WebkitBackdropFilter: 'blur(5px)',
-              border: '3px solid #52c41a',
+              border: '3px solid var(--accent)',
               color: '#fff',
               padding: '25px 50px',
               borderRadius: '12px',
               fontSize: '22px',
               fontWeight: 'bold',
               textAlign: 'center',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              boxShadow: 'var(--shadow)',
               zIndex: 100,
               pointerEvents: 'none',
               letterSpacing: '0.5px',
             }}
           >
-            <span style={{ color: '#52c41a', fontSize: '26px' }}>WINNER!</span>
+            <span style={{ color: 'var(--accent)', fontSize: '26px' }}>WINNER!</span>
             <div style={{ margin: '10px 0', fontSize: '28px', textTransform: 'uppercase' }}>
               {winnerName}
             </div>
-            <div style={{ color: '#a6a6a6', fontSize: '16px' }}>Time: {winnerTime} s</div>
+            <div style={{ color: 'var(--text)', fontSize: '16px' }}>Time: {winnerTime} s</div>
           </div>
         )}
       </div>
