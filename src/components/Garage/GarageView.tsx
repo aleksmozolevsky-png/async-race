@@ -7,9 +7,8 @@ import { CarControls } from './CarControls';
 
 export const GarageView: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { cars, totalCount, currentPage, loading, winnerName, winnerTime } = useSelector(
-    (state: RootState) => state.garage
-  );
+  const { cars, totalCount, currentPage, loading, winnerName, winnerTime, raceStatus } =
+    useSelector((state: RootState) => state.garage);
 
   useEffect(() => {
     dispatch(fetchCars(currentPage));
@@ -66,14 +65,29 @@ export const GarageView: React.FC = () => {
               background: '#232329',
             }}
           >
-            {cars.map((car) => (
-              <CarTrack
-                key={car.id}
-                car={car}
-                onDelete={(id) => dispatch(removeCarThunk(id))}
-                onSelect={(selected) => dispatch(selectCar(selected))}
-              />
-            ))}
+            {cars.length === 0 && !loading ? (
+              <div
+                style={{
+                  padding: '50px 20px',
+                  textAlign: 'center',
+                  color: '#aaa',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  letterSpacing: '1px',
+                }}
+              >
+                Your garage is empty. Create some epic cars above to start the race!
+              </div>
+            ) : (
+              cars.map((car) => (
+                <CarTrack
+                  key={car.id}
+                  car={car}
+                  onDelete={(id) => dispatch(removeCarThunk(id))}
+                  onSelect={(selected) => dispatch(selectCar(selected))}
+                />
+              ))
+            )}
           </div>
         </div>
 
@@ -114,14 +128,14 @@ export const GarageView: React.FC = () => {
       <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
         <button
           type="button"
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || raceStatus === 'racing'}
           onClick={() => handlePageChange(currentPage - 1)}
         >
           Prev
         </button>
         <button
           type="button"
-          disabled={currentPage * 7 >= totalCount}
+          disabled={currentPage * 7 >= totalCount || raceStatus === 'racing'}
           onClick={() => handlePageChange(currentPage + 1)}
         >
           Next

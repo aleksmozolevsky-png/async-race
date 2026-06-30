@@ -2,14 +2,17 @@
   "name": "async-race",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://github.com/aleksmozolevsky-png/async-race",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "tsc && vite build",
-  "preview": "vite preview",
-  "format": "prettier --write \"src/**/*.{ts,tsx,css,scss,md}\"",
-  "ci:format": "prettier --check \"src/**/*.{ts,tsx,css,scss,md}\"",
-  "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,scss,md}\"",
+    "ci:format": "prettier --check \"src/**/*.{ts,tsx,css,scss,md}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
@@ -34,6 +37,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "gh-pages": "^6.3.0",
     "globals": "^17.6.0",
     "prettier": "^3.9.4",
     "typescript": "~6.0.2",

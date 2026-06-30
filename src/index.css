@@ -111,3 +111,13 @@ code {
 html {
   scrollbar-gutter: stable;
 }
+
+button:disabled {
+  background-color: #3a3a42 !important;
+  color: #666666 !important;
+  border-color: #444444 !important;
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none !important;
+  transform: none !important;
+}

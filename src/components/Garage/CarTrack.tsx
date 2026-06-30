@@ -107,6 +107,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <button
             type="button"
+            disabled={raceStatus === 'racing'}
             onClick={() => onSelect(car)}
             style={{ fontSize: '10px', padding: '2px 4px', cursor: 'pointer' }}
           >
@@ -114,6 +115,7 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
           </button>
           <button
             type="button"
+            disabled={raceStatus === 'racing'}
             onClick={() => onDelete(car.id)}
             style={{ fontSize: '10px', padding: '2px 4px', cursor: 'pointer' }}
           >

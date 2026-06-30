@@ -38,8 +38,23 @@ export const removeCarThunk = createAsyncThunk(
   'garage/removeCar',
   async (id: number, { dispatch, getState }) => {
     await api.deleteCar(id);
+    try {
+      await api.deleteWinner(id);
+    } catch {
+      // ignore the 404 error if the machine has never won
+    }
     const state = getState() as { garage: GarageState };
-    dispatch(fetchCars(state.garage.currentPage));
+    const { cars, currentPage } = state.garage;
+    if (cars.length === 1 && currentPage > 1) {
+      const prevPage = currentPage - 1;
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      dispatch(setPage(prevPage));
+      dispatch(fetchCars(prevPage));
+    } else {
+      dispatch(fetchCars(currentPage));
+    }
+
+    dispatch(fetchWinnersThunk());
   }
 );
 

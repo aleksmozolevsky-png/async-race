@@ -62,7 +62,9 @@ export const CarControls: React.FC = () => {
           onChange={(e) => setCreateName(e.target.value)}
         />
         <input type="color" value={createColor} onChange={(e) => setCreateColor(e.target.value)} />
-        <button type="submit">Create</button>
+        <button disabled={raceStatus === 'racing'} type="submit">
+          Create
+        </button>
       </form>
 
       <form onSubmit={handleUpdate} style={{ display: 'flex', gap: '10px' }}>
@@ -80,13 +82,17 @@ export const CarControls: React.FC = () => {
           value={updateColor}
           onChange={(e) => setUpdateColor(e.target.value)}
         />
-        <button type="submit" disabled={!selectedCar}>
+        <button type="submit" disabled={!selectedCar || raceStatus === 'racing'}>
           Update
         </button>
       </form>
 
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button type="button" onClick={() => dispatch(generateCarsThunk())}>
+        <button
+          type="button"
+          disabled={raceStatus === 'racing'}
+          onClick={() => dispatch(generateCarsThunk())}
+        >
           Generate 100 Cars
         </button>
         <button
