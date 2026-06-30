@@ -58,6 +58,7 @@ export const CarControls: React.FC = () => {
           type="text"
           placeholder="Car name"
           value={createName}
+          maxLength={30}
           onChange={(e) => setCreateName(e.target.value)}
         />
         <input type="color" value={createColor} onChange={(e) => setCreateColor(e.target.value)} />
@@ -69,6 +70,7 @@ export const CarControls: React.FC = () => {
           type="text"
           placeholder="Select car first"
           disabled={!selectedCar}
+          maxLength={30}
           value={updateName}
           onChange={(e) => setUpdateName(e.target.value)}
         />
