@@ -21,6 +21,9 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
   const [leftPos, setLeftPos] = useState('10px');
   const carRef = useRef<HTMLDivElement>(null);
 
+  const carStateRef = useRef({ isDriving, isBroken });
+  carStateRef.current = { isDriving, isBroken };
+
   const handleBreakdown = () => {
     if (!carRef.current) return;
     const computedStyle = window.getComputedStyle(carRef.current);
@@ -42,17 +45,12 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
       setLeftPos('calc(100% - 130px)');
 
       const finishTimeout = setTimeout(() => {
-        setIsDriving((currentDriving) => {
-          setIsBroken((currentBroken) => {
-            if (currentDriving && !currentBroken) {
-              const timeInSeconds = parseFloat((timeInMs / 1000).toFixed(2));
-              dispatch(setRaceWinner({ id: car.id, name: car.name, time: timeInSeconds }));
-              dispatch(saveWinnerThunk({ id: car.id, time: timeInSeconds }));
-            }
-            return currentBroken;
-          });
-          return currentDriving;
-        });
+        const { isDriving: currentDriving, isBroken: currentBroken } = carStateRef.current;
+        if (currentDriving && !currentBroken) {
+          const timeInSeconds = parseFloat((timeInMs / 1000).toFixed(2));
+          dispatch(setRaceWinner({ id: car.id, name: car.name, time: timeInSeconds }));
+          dispatch(saveWinnerThunk({ id: car.id, time: timeInSeconds }));
+        }
       }, timeInMs);
 
       const driveRes = await api.driveCar(car.id);
@@ -79,8 +77,8 @@ export const CarTrack: React.FC<CarTrackProps> = ({ car, onDelete, onSelect }) =
     } else if (raceStatus === 'ready') {
       handleReset();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [raceStatus]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [raceStatus]);
 
   return (
     <div

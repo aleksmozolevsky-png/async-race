@@ -15,9 +15,12 @@ export const GarageView: React.FC = () => {
     dispatch(fetchCars(currentPage));
   }, [dispatch, currentPage]);
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       dispatch(resetRace());
-    }, [dispatch]);
+    },
+    [dispatch]
+  );
 
   const handlePageChange = (newPage: number) => {
     dispatch(setPage(newPage));
