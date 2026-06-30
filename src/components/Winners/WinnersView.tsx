@@ -5,11 +5,11 @@ import { fetchWinnersThunk, setWinnersPage, setSorting } from '../../store/winne
 
 export const WinnersView: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { winners, totalCount, currentPage, sort, order, loading } = useSelector((state: RootState) => state.winners);
+  const { winners, totalCount, currentPage, sort, order, loading, error} = useSelector((state: RootState) => state.winners);
 
   useEffect(() => {
     dispatch(fetchWinnersThunk());
-  }, [currentPage, sort, order]);
+  }, [dispatch, currentPage, sort, order]);
 
   const handleSort = (field: 'wins' | 'time') => {
     dispatch(setSorting(field));
@@ -19,7 +19,8 @@ export const WinnersView: React.FC = () => {
     if (sort !== field) return '';
     return order === 'ASC' ? ' ▲' : ' ▼';
   };
-
+  if (error) return <p style={{ color: '#ff4d4f' }}>Error: {error}</p>;
+  
   return (
     <div style={{ padding: '20px' }}>
       <h2>Winners ({totalCount})</h2>
